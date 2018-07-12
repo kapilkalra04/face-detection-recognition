@@ -7,10 +7,10 @@ def convertToRGB(img):
 
 # specify locations of the 	model and its weights
 args = {}
-args["prototxt"] = "src/deploy.prototxt.txt"
-args["model"] = "src/res10_300x300_ssd_iter_140000.caffemodel"
-args["image"] = "src/images/test6.png"		# images are loaded as 3D matrix - (h x w x c)
-args["confidence"] = 0.75
+args["prototxt"] = "src/deploy.prototxt.txt"					# model-definition
+args["model"] = "src/res10_300x300_ssd_iter_140000.caffemodel"	# pre-trained weights
+args["image"] = "src/images/test6.png"							# images are loaded as 3D matrix - (h x w x c)
+args["confidence"] = 0.75										# confidence>value is a face
 
 # load the caffe model 
 print "[INFO] Loading model"
