@@ -9,7 +9,7 @@ def convertToRGB(img):
 args = {}
 args["prototxt"] = "src/deploy.prototxt.txt"					# model-definition
 args["model"] = "src/res10_300x300_ssd_iter_140000.caffemodel"	# pre-trained weights
-args["image"] = "data/images/test6.png"							# images are loaded as 3D matrix - (h x w x c)
+args["image"] = "data/images/test4.jpeg"							# images are loaded as 3D matrix - (h x w x c)
 args["confidence"] = 0.75										# confidence>value is a face
 
 # load the caffe model 
@@ -35,6 +35,7 @@ print "[INFO] Computing face detections..."
 net.setInput(blob)
 detections = net.forward()
 
+count = 0
 for i in range(0, detections.shape[2]):
 	# extract the confidence (i.e., probability) associated with the
 	# prediction
@@ -54,11 +55,8 @@ for i in range(0, detections.shape[2]):
 		x.extend([startX,endX,endX,startX,startX])
 		y.extend([startY,startY,endY,endY,startY])
 		plt.plot(x,y)
-		
-		print ">> DETECTION"
+		count = count + 1
 
+print "Faces Detected = " + str(count)
 plt.imshow(convertToRGB(image))
 plt.show() 
-# show the output image
-# cv2.imshow("Output", image)
-# cv2.waitKey(0)
