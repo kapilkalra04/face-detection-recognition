@@ -38,6 +38,7 @@ def detect(model,weights,image,confidence):
 	net.setInput(blob)
 	detections = net.forward()
 
+	plt.subplot(2,1,1)							#to plot in the orginal image
 	count = 0									# count of no of faces detected
 	faces = {}									# stores the faces rectangles co-ordinates
 	for i in range(0, detections.shape[2]):
@@ -67,9 +68,7 @@ def detect(model,weights,image,confidence):
 			count = count + 1
 
 	print "Faces Detected = " + str(count)
-	print faces
-
-
+	
 	largestFaceIndex = -1
 	largestAreaYet = 0
 	
@@ -78,8 +77,4 @@ def detect(model,weights,image,confidence):
 			largestFaceIndex = i
 			largestAreaYet = faces[i][4]
 
-	print largestAreaYet
-	print largestFaceIndex
-
-	plt.imshow(convertToRGB(image))
-	plt.show() 
+	return convertToRGB(image),faces[largestFaceIndex]
