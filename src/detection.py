@@ -5,14 +5,17 @@ import cv2
 def convertToRGB(img): 
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-def detect(model,weights,image,confidence):
+def convertToGRAY(img): 
+    return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+def detect(model,weights,image):
 
 	# specify locations of the 	model and its weights
 	args = {}
 	args["model"] = model					# model-definition
-	args["weights"] = weights						# pre-trained weights
-	args["image"] = image						# images are loaded as 3D matrix - (h x w x c)
-	args["confidence"] = confidence				# when confidence>value then it is a face
+	args["weights"] = weights				# pre-trained weights
+	args["image"] = image					# images are loaded as 3D matrix - (h x w x c)
+	args["confidence"] = 0.75				# when confidence>value then it is a face
 
 	# load the caffe model 
 	print "[INFO] Loading model"
@@ -77,4 +80,4 @@ def detect(model,weights,image,confidence):
 			largestFaceIndex = i
 			largestAreaYet = faces[i][4]
 
-	return convertToRGB(image),faces[largestFaceIndex]
+	return convertToRGB(image),convertToGRAY(image),faces[largestFaceIndex]
