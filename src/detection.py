@@ -41,7 +41,6 @@ def detect(model,weights,image):
 	net.setInput(blob)
 	detections = net.forward()
 
-	plt.subplot(2,1,1)							#to plot in the orginal image
 	count = 0									# count of no of faces detected
 	faces = {}									# stores the faces rectangles co-ordinates
 	for i in range(0, detections.shape[2]):

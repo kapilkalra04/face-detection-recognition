@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
 from keras.models import load_model
-import matplotlib.pyplot as plt 
-import detection 
  
 def align(face,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y):
 	lx = left_eye_center_x
