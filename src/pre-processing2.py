@@ -1,24 +1,71 @@
-import detection as dtcn
+import detection
 import matplotlib.pyplot as plt
 import cv2
+import alignment
 
-def process(image):	
+def detectMainFace(imageName):	
 	model = "src/deploy.prototxt.txt"							# model-definition
 	weights = "src/res10_300x300_ssd_iter_140000.caffemodel"	# pre-trained weights
-	image = image												# image name reqd. images are loaded as 3D matrix - (h x w x c)
-	
-	colorImage, grayImage, faceBox = dtcn.detect(model,weights,image)
-	plt.imshow(colorImage)
-	plt.subplot(2,1,2)
+	image = imageName											# image name reqd. images are loaded as 3D matrix - (h x w x c)	
 
+	colorImage, grayImage, faceBox = detection.detect(model,weights,image)
+	
+	#[startX,endX,startY,endY,area] = faceBox
+	
 	# cropping the main face out of the GRAY SPACE image
 	# as LBPH work on gray scaled images
-	face = grayImage[faceBox[2]:faceBox[3], faceBox[0]:faceBox[1] ]
-	return face
+	mainFaceGray = grayImage[faceBox[2]:faceBox[3], faceBox[0]:faceBox[1] ]
+	return colorImage, mainFaceGray, faceBox
 
+def alignMainFace(image):
+	# scaleX = 96.0/(image.shape[0])						# ROWS
+	# scaleY = 96.0/(image.shape[1])						# COLS
+
+	left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y = alignment.detectEyeCenters(image)
+	alignedFace = alignment.align(image,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y)
+	#results = alignment.computeTransformation(image)
+	# for i in range(0,len(results)):
+	# 	if i % 2 :
+	# 		results[i] = results[i]*(1/scaleX)
+	# 	else :
+	# 		results[i] = results[i]*(1/scaleY)
+	
+	# left_eye_center_x = results[0]
+	# left_eye_center_y = results[1]
+	# right_eye_center_x = results[2]
+	# right_eye_center_y = results[3]
+
+	# X = []
+	# Y = []
+
+	# X.extend([results[0:29:2]])
+	# Y.extend([results[1:30:2]])
+	
+	# plt.plot(X,Y,'c*',markersize=3)
+
+	return alignedFace, left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y
+	
 
 
 if __name__ == '__main__':
-	plt.imshow(process('data/images/test4.jpeg'), cmap='gray')
-	plt.show()
+	
+	plt.subplot(2,2,1)
+	colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/images/test7.jpg')
+	plt.imshow(colorImage)
 
+	plt.subplot(2,2,2)
+	plt.imshow(mainFaceGray,cmap='gray')
+	
+	plt.subplot(2,2,3)
+	alignedFace, e1x, e1y, e2x, e2y = alignMainFace(mainFaceGray)
+	X = [e1x,e2x]
+	Y = [e1y,e2y]
+	plt.imshow(mainFaceGray,cmap='gray')
+	plt.plot(X,Y,'-D',markersize=3)
+
+	plt.subplot(2,2,4)
+	plt.imshow(alignedFace,cmap='gray')
+	
+
+	plt.show()
+	
