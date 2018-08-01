@@ -3,78 +3,78 @@ import matplotlib.pyplot as plt
 import cv2
 import alignment
 
-def detectMainFace(imageName):	
+def detectMainFace(imageName,isPath):	
 	model = "src/deploy.prototxt.txt"							# model-definition
 	weights = "src/res10_300x300_ssd_iter_140000.caffemodel"	# pre-trained weights
 	image = imageName											# image name reqd. images are loaded as 3D matrix - (h x w x c)	
 
-	colorImage, grayImage, faceBox = detection.detect(model,weights,image)
+	colorImage, grayImage, mainFaceBox = detection.detect(model,weights,image,isPath)
 	
-	#[startX,endX,startY,endY,area] = faceBox
+	mainFaceGray = grayImage[mainFaceBox[2]:mainFaceBox[3], mainFaceBox[0]:mainFaceBox[1] ]
 	
-	# cropping the main face out of the GRAY SPACE image
-	# as LBPH work on gray scaled images
-	mainFaceGray = grayImage[faceBox[2]:faceBox[3], faceBox[0]:faceBox[1] ]
-	return colorImage, mainFaceGray, faceBox
+	return colorImage, mainFaceGray, mainFaceBox
 
-def alignMainFace(image):
-	# scaleX = 96.0/(image.shape[0])						# ROWS
-	# scaleY = 96.0/(image.shape[1])						# COLS
+def alignImage(colorImage,mainFaceGray,mainFaceBox):
+	left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y = alignment.detectEyeCenters(mainFaceGray)
+	
+	center, angle, scale = alignment.rotate(mainFaceGray,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y)
+	
+	X = [left_eye_center_x,right_eye_center_x]
+	Y = [left_eye_center_y,right_eye_center_y]
+	# plt.plot(X,Y,'-D',markersize=3)
 
-	#results = alignment.computeTransformation(image)
-	# for i in range(0,len(results)):
-	# 	if i % 2 :
-	# 		results[i] = results[i]*(1/scaleX)
-	# 	else :
-	# 		results[i] = results[i]*(1/scaleY)
-	
-	# left_eye_center_x = results[0]
-	# left_eye_center_y = results[1]
-	# right_eye_center_x = results[2]
-	# right_eye_center_y = results[3]
 
-	# X = []
-	# Y = []
+	# update co-ordinates according to colorImage
+	left_eye_center_x = left_eye_center_x + mainFaceBox[0]
+	right_eye_center_x = right_eye_center_x + mainFaceBox[0]
+	left_eye_center_y = left_eye_center_y + mainFaceBox[2]
+	right_eye_center_y = right_eye_center_y + mainFaceBox[2]
+	
+	center = (center[0]+mainFaceBox[0],center[1]+mainFaceBox[2])
 
-	# X.extend([results[0:29:2]])
-	# Y.extend([results[1:30:2]])
+	M = cv2.getRotationMatrix2D(center, angle, scale)
 	
-	# plt.plot(X,Y,'c*',markersize=3)
+	alignedImage = cv2.warpAffine(colorImage,M,(colorImage.shape[1],colorImage.shape[0]),flags=cv2.INTER_CUBIC)
+	
+	return alignedImage, left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y
 
-	left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y = alignment.detectEyeCenters(image)
-	# alignedFace.shape = (256,256)
-	alignedFace = alignment.align(image,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y)
-	return alignedFace, left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y
+
+def getFace(imagePath):
+	colorImage, mainFaceGray, mainFaceBox = detectMainFace(imagePath,True)
+	
+	alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
+	
+	colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	
+	mainFaceGray = cv2.fastNlMeansDenoising(mainFaceGray)									# denoising
+	
+	return mainFaceGray																		# returns a grayscaled,aligned,(256,256) face
+
+# if __name__ == '__main__':
+	
+	# plt.subplot(2,2,1)
+	# colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/images/test9.JPG',True)
+	# plt.imshow(colorImage)
+
+	# plt.subplot(2,2,2)
+	# plt.imshow(mainFaceGray,cmap='gray')
+	
+	# alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
+	# X = [e1x,e2x]
+	# Y = [e1y,e2y]
+	# plt.subplot(2,2,3)
+	# plt.imshow(alignedImage,cmap='gray')
+	# plt.plot(X,Y,'-D',markersize=3)
+
+	# plt.subplot(2,2,4)
+	# # plt.imshow(alignedImage,cmap='gray')
+	# # plt.show()
+	
+	# colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	# print mainFaceGray.shape
+	# plt.imshow(mainFaceGray,cmap='gray')
+	# plt.show()
 	
 
-def getFace(image):
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace(image)
-	
-	alignedFace,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y = alignMainFace(mainFaceGray)
-	
-	alignedFace = cv2.fastNlMeansDenoising(alignedFace)					# denoising
-	
-	return alignedFace													# returns a grayscaled,aligned,(256,256) face
-
-if __name__ == '__main__':
-	
-	plt.subplot(2,2,1)
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/images/test2.jpg')
-	plt.imshow(colorImage)
-
-	plt.subplot(2,2,2)
-	plt.imshow(mainFaceGray,cmap='gray')
-	
-	plt.subplot(2,2,3)
-	alignedFace, e1x, e1y, e2x, e2y = alignMainFace(mainFaceGray)
-	X = [e1x,e2x]
-	Y = [e1y,e2y]
-	plt.imshow(mainFaceGray,cmap='gray')
-	plt.plot(X,Y,'-D',markersize=3)
-
-	plt.subplot(2,2,4)
-	plt.imshow(alignedFace,cmap='gray')
-	
-	plt.show()
-	
-	getFace('data/images/test2.jpg')
+	# plt.imshow(getFace('data/library/train/IMG_0007.JPG'),cmap='gray')
+	# plt.show()
