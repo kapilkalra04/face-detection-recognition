@@ -8,7 +8,7 @@ def convertToRGB(img):
 def convertToGRAY(img): 
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-def detect(model,weights,image):
+def detect(model,weights,image,isPath):
 
 	# specify locations of the 	model and its weights
 	args = {}
@@ -22,8 +22,11 @@ def detect(model,weights,image):
 	# net = cnn used to detect faces
 	net = cv2.dnn.readNetFromCaffe(args["model"], args["weights"])
 	 
-	# load the input image 
-	image = cv2.imread(args["image"])
+	# load the input image
+	if(isPath==True): 
+		image = cv2.imread(args["image"])
+	else:
+		image = image
 
 	# print len(image)							# height of the image
 	# print len(image[0])						# width of the image
@@ -66,7 +69,7 @@ def detect(model,weights,image):
 			# plot the box
 			x.extend([startX,endX,endX,startX,startX])
 			y.extend([startY,startY,endY,endY,startY])
-			plt.plot(x,y)
+			# plt.plot(x,y)
 			count = count + 1
 
 	print "Faces Detected = " + str(count)
