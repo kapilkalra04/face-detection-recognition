@@ -50,30 +50,30 @@ def getFace(imagePath):
 	
 	return mainFaceGray																		# returns a grayscaled,aligned,(256,256) face
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 	
-	# plt.subplot(2,2,1)
-	# colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/images/test9.JPG',True)
-	# plt.imshow(colorImage)
+	plt.subplot(2,2,1)
+	colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/images/test9.JPG',True)
+	plt.imshow(colorImage)
 
-	# plt.subplot(2,2,2)
-	# plt.imshow(mainFaceGray,cmap='gray')
+	plt.subplot(2,2,2)
+	plt.imshow(mainFaceGray,cmap='gray')
 	
-	# alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
-	# X = [e1x,e2x]
-	# Y = [e1y,e2y]
-	# plt.subplot(2,2,3)
+	alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
+	X = [e1x,e2x]
+	Y = [e1y,e2y]
+	plt.subplot(2,2,3)
+	plt.imshow(alignedImage,cmap='gray')
+	plt.plot(X,Y,'-D',markersize=3)
+
+	plt.subplot(2,2,4)
 	# plt.imshow(alignedImage,cmap='gray')
-	# plt.plot(X,Y,'-D',markersize=3)
-
-	# plt.subplot(2,2,4)
-	# # plt.imshow(alignedImage,cmap='gray')
-	# # plt.show()
-	
-	# colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
-	# print mainFaceGray.shape
-	# plt.imshow(mainFaceGray,cmap='gray')
 	# plt.show()
+	
+	colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	print mainFaceGray.shape
+	plt.imshow(mainFaceGray,cmap='gray')
+	plt.show()
 	
 
 	# plt.imshow(getFace('data/library/train/IMG_0007.JPG'),cmap='gray')
