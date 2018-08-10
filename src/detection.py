@@ -83,3 +83,18 @@ def detect(model,weights,image,isPath):
 			largestAreaYet = faces[i][4]
 
 	return convertToRGB(image),convertToGRAY(image),faces[largestFaceIndex]
+
+
+if __name__ == '__main__':
+	model = "src/deploy.prototxt.txt"							# model-definition
+	weights = "src/res10_300x300_ssd_iter_140000.caffemodel"	# pre-trained weights
+	image = "data/images/demo1.JPG"								# image name reqd. images are loaded as 3D matrix - (h x w x c)	
+	isPath = True
+	print "Hello"
+	plt.subplot(2,1,1)
+	colorImage, grayImage, mainFaceBox = detect(model,weights,image,isPath)
+	plt.imshow(colorImage)
+	plt.subplot(2,1,2)
+	mainFaceGray = grayImage[mainFaceBox[2]:mainFaceBox[3], mainFaceBox[0]:mainFaceBox[1]]
+	plt.imshow(mainFaceGray)
+	plt.show()
