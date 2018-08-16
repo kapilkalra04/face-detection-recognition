@@ -31,29 +31,29 @@ def rotate(face,left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye
 	return center, angle, scale
 
 def detectEyeCenters(face):
-	cnn = load_model('src/cnn70.h5')
-
-	# find the scaling ratios 
-	faceHeight = np.float32(face.shape[0])
-	faceWidth = np.float32(face.shape[1])
-	heightScaling = 96.0/faceHeight
-	widthScaling = 96.0/faceWidth
+	# cnn = load_model('src/cnn70.h5')
 	
-	faceResized = cv2.resize(face,(96,96))
+	# # find the scaling ratios 
+	# faceHeight = np.float32(face.shape[0])
+	# faceWidth = np.float32(face.shape[1])
+	# heightScaling = 96.0/faceHeight
+	# widthScaling = 96.0/faceWidth
+	
+	# faceResized = cv2.resize(face,(96,96))
 	# faceResized = cv2.fastNlMeansDenoising(faceResized)
 	# plt.show()
 
 	# plt.imshow(faceResized,cmap='gray')
 	
-	# prepare Input for CNN
-	faceResized = np.expand_dims(faceResized,axis=0)
-	faceResized = np.expand_dims(faceResized,axis=3)
-	faceResized = np.float32(faceResized)
-	faceResized = faceResized/255.0
+	# # prepare Input for CNN
+	# faceResized = np.expand_dims(faceResized,axis=0)
+	# faceResized = np.expand_dims(faceResized,axis=3)
+	# faceResized = np.float32(faceResized)
+	# faceResized = faceResized/255.0
 	
-	# obtain output
-	outputVector = cnn.predict(faceResized)
-	outputVector = (outputVector*48) + 48
+	# # obtain output
+	# outputVector = cnn.predict(faceResized)
+	# outputVector = (outputVector*48) + 48
 	
 	# X=[]
 	# Y=[]
@@ -66,11 +66,11 @@ def detectEyeCenters(face):
 	# plt.show()
 	# print outputVector
 
-	# scale up the eye centers obtained
-	ref_left_eye_center_x = outputVector[0,0]/widthScaling
-	ref_left_eye_center_y = outputVector[0,1]/heightScaling
-	ref_right_eye_center_x = outputVector[0,2]/widthScaling
-	ref_right_eye_center_y = outputVector [0,3]/heightScaling
+	# # scale up the eye centers obtained
+	# ref_left_eye_center_x = outputVector[0,0]/widthScaling
+	# ref_left_eye_center_y = outputVector[0,1]/heightScaling
+	# ref_right_eye_center_x = outputVector[0,2]/widthScaling
+	# ref_right_eye_center_y = outputVector [0,3]/heightScaling
 	
 	
 
@@ -131,7 +131,7 @@ def detectEyeCenters(face):
 	Y=[]
 	X.extend([left_eye_center_x,right_eye_center_x])
 	Y.extend([left_eye_center_y,right_eye_center_y])
-	plt.plot(X,Y,'*',markersize=3)
+	# plt.plot(X,Y,'*',markersize=3)
 	# plt.show()
 	
 
