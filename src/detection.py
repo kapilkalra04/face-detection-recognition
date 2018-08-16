@@ -81,9 +81,10 @@ def detect(model,weights,image,isPath):
 		if(faces[i][4]>largestAreaYet):
 			largestFaceIndex = i
 			largestAreaYet = faces[i][4]
-
-	return convertToRGB(image),convertToGRAY(image),faces[largestFaceIndex]
-
+	if isPath == True:		
+		return convertToRGB(image),convertToGRAY(image),faces[largestFaceIndex]
+	else:
+		return image,convertToGRAY(image),faces[largestFaceIndex]
 
 if __name__ == '__main__':
 	model = "src/deploy.prototxt.txt"							# model-definition

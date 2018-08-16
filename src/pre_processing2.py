@@ -12,9 +12,10 @@ def detectMainFace(imageName,isPath):
 	colorImage, grayImage, mainFaceBox = detection.detect(model,weights,image,isPath)
 	
 	# crop the misaligned face from the whole image
-	mainFaceGray = grayImage[mainFaceBox[2]:mainFaceBox[3], mainFaceBox[0]:mainFaceBox[1] ]
-	
-	return colorImage, mainFaceGray, mainFaceBox
+	mainFaceGray = grayImage[mainFaceBox[2]:mainFaceBox[3], mainFaceBox[0]:mainFaceBox[1]]
+	mainFaceColor = colorImage[mainFaceBox[2]:mainFaceBox[3], mainFaceBox[0]:mainFaceBox[1]]
+
+	return colorImage, mainFaceColor, mainFaceGray, mainFaceBox
 
 def alignImage(colorImage,mainFaceGray,mainFaceBox):
 	# obtain eye centers
@@ -36,45 +37,60 @@ def alignImage(colorImage,mainFaceGray,mainFaceBox):
 	
 	return alignedImage, left_eye_center_x,left_eye_center_y,right_eye_center_x,right_eye_center_y
 
-
-def getFace(imagePath):
+# return the face in gray scale
+def getFaceGray(imagePath):
 	# detect the misaligned largest face in gray
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace(imagePath,True)
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace(imagePath,True)
 	
 	# straighten the actual image
 	alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
 	
 	# detect the aligned largest face in gray
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
 	
 	# apply denoising
-	mainFaceGray = cv2.fastNlMeansDenoising(mainFaceGray)									# denoising
+	mainFaceGray = cv2.fastNlMeansDenoising(mainFaceGray)										# denoising
+		
+	return mainFaceGray																			# returns a grayscaled,aligned,(256,256) face
+
+# return the face in RGB
+def getFaceColor(imagePath):
+	# detect the misaligned largest face in gray
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace(imagePath,True)
 	
-	return mainFaceGray																		# returns a grayscaled,aligned,(256,256) face
+	# straighten the actual image
+	alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
+	
+	# detect the aligned largest face in gray
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	
+	# apply denoising
+	mainFaceColor = cv2.fastNlMeansDenoisingColored(mainFaceColor)								# denoising
+	
+	return mainFaceColor																		# returns a grayscaled,aligned,(256,256) face
 
 if __name__ == '__main__':
 	
 	plt.subplot(2,2,1)
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace('data/library/train/17.JPG',True)
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace('data/library/train/1.jpg',True)
 	plt.imshow(colorImage)
 
 	plt.subplot(2,2,2)
-	plt.imshow(mainFaceGray,cmap='gray')
+	plt.imshow(mainFaceColor)
 	
 	alignedImage, e1x, e1y, e2x, e2y = alignImage(colorImage,mainFaceGray,mainFaceBox)
 	X = [e1x,e2x]
 	Y = [e1y,e2y]
 	plt.subplot(2,2,3)
-	plt.imshow(alignedImage,cmap='gray')
+	plt.imshow(alignedImage)
 	plt.plot(X,Y,'-D',markersize=3)
 
 	plt.subplot(2,2,4)
 	# plt.imshow(alignedImage,cmap='gray')
 	# plt.show()
 	
-	colorImage, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
-	print mainFaceGray.shape
-	plt.imshow(mainFaceGray,cmap='gray')
+	colorImage, mainFaceColor, mainFaceGray, mainFaceBox = detectMainFace(alignedImage,False)
+	plt.imshow(mainFaceColor)
 	plt.show()
 	
 
