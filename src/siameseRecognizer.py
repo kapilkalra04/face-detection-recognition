@@ -4,9 +4,11 @@ import cv2
 import matplotlib.pyplot as plt
 import pre_processing2 as pre
 
+# load trained images embeddings
 empEmbeddings = np.load('src/empEmbeddings.npy')
 print empEmbeddings.shape
 
+# load test image embeddings
 cstmrEmbeddings = np.load('src/cstmrEmbeddings.npy')
 print cstmrEmbeddings.shape
 
@@ -22,6 +24,7 @@ for imagePath in glob.glob('data/library/test2/*'):
 plt.subplot2grid((1,4),(0,0))
 plt.imshow(faceListTrain[0])
 
+# calculate L2 norm of test image versusal of the training images
 for i in range(0,len(empEmbeddings)):
 	for j in range(0,len(cstmrEmbeddings)):
 		plt.subplot2grid((1,4),(0,j+1))
